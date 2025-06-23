@@ -140,7 +140,7 @@ const ContactForm = () => {
           <div className={`transition-all duration-1000 delay-500 ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
               {!submitted ? (
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form className="space-y-6" netlify>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-white font-medium mb-2">Nombre Completo *</label>
