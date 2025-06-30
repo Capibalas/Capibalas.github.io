@@ -7,13 +7,13 @@ import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCKh6ifKk0fXQlAy-ixQq-JRoAh4ppjUl0",
-  authDomain: "bestwhip-67e0b.firebaseapp.com",
-  projectId: "bestwhip-67e0b",
-  storageBucket: "bestwhip-67e0b.firebasestorage.app",
-  messagingSenderId: "886546495426",
-  appId: "1:886546495426:web:f8f87f0938ec2dfec8085b",
-  measurementId: "G-GEJR9MKLTL"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCKh6ifKk0fXQlAy-ixQq-JRoAh4ppjUl0",
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "bestwhip-67e0b.firebaseapp.com",
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "bestwhip-67e0b",
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "bestwhip-67e0b.firebasestorage.app",
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "886546495426",
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:886546495426:web:f8f87f0938ec2dfec8085b",
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-GEJR9MKLTL"
 };
 
 // Initialize Firebase

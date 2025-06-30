@@ -1,0 +1,93 @@
+[build]
+  # Build command
+  command = "npm run build"
+  
+  # Directory to publish (Vite builds to 'dist' by default)
+  publish = "dist"
+
+# Redirect all routes to index.html for React Router to handle client-side routing
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables for production
+[build.environment]
+  NODE_VERSION = "18"
+  # Firebase configuration
+  VITE_FIREBASE_API_KEY = "AIzaSyCKh6ifKk0fXQlAy-ixQq-JRoAh4ppjUl0"
+  VITE_FIREBASE_AUTH_DOMAIN = "bestwhip-67e0b.firebaseapp.com"
+  VITE_FIREBASE_PROJECT_ID = "bestwhip-67e0b"
+  VITE_FIREBASE_STORAGE_BUCKET = "bestwhip-67e0b.firebasestorage.app"
+  VITE_FIREBASE_MESSAGING_SENDER_ID = "886546495426"
+  VITE_FIREBASE_APP_ID = "1:886546495426:web:f8f87f0938ec2dfec8085b"
+  VITE_FIREBASE_MEASUREMENT_ID = "G-GEJR9MKLTL"
+
+# Headers for better performance and security
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache static assets
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Cache images
+[[headers]]
+  for = "/*.jpg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.jpeg"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+[[headers]]
+  for = "/*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+# Cache videos
+[[headers]]
+  for = "/*.mp4"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+
+# Specific redirects for common routes (optional, but good for SEO)
+[[redirects]]
+  from = "/productos"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/productos/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/index.html"
+  status = 200
+
+# Handle API routes if needed (for future use)
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
