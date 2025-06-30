@@ -43,13 +43,32 @@ const ContactForm = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000))
+    // Create email content
+    const emailSubject = `Consulta de ${formData.name} - ${formData.interest || 'Información General'}`
+    const emailBody = `
+Nombre: ${formData.name}
+Email: ${formData.email}
+Teléfono: ${formData.phone}
+Tipo de Negocio: ${formData.business}
+Producto de Interés: ${formData.interest}
+
+Mensaje:
+${formData.message}
+    `.trim()
+    
+    // Create mailto link
+    const mailtoLink = `mailto:contacto@bestwhip.com.mx?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
+    
+    // Open email client
+    window.location.href = mailtoLink
+    
+    // Simulate processing time
+    await new Promise(resolve => setTimeout(resolve, 1000))
     
     setIsSubmitting(false)
     setSubmitted(true)
     
-    // Reset form after 3 seconds
+    // Reset form after 5 seconds
     setTimeout(() => {
       setSubmitted(false)
       setFormData({
@@ -60,7 +79,7 @@ const ContactForm = () => {
         interest: '',
         message: ''
       })
-    }, 3000)
+    }, 5000)
   }
 
   const interestOptions = [
@@ -107,10 +126,10 @@ const ContactForm = () => {
               {/* Contact Methods */}
               <div className="space-y-6">
                 {[
-                  { icon: "📞", title: "Teléfono", info: "+52 (55) 1234-5678", desc: "Lun - Vie: 9:00 AM - 6:00 PM" },
-                  { icon: "✉️", title: "Email", info: "info@bestwhipmx.com", desc: "Respuesta en 24 horas" },
+                  { icon: "📞", title: "Teléfono", info: "+52 (56) 6054-7499", desc: "Lun - Vie: 9:00 AM - 6:00 PM" },
+                  { icon: "✉️", title: "Email", info: "contacto@bestwhip.com.mx", desc: "Respuesta en 24 horas" },
                   { icon: "📍", title: "Ubicación", info: "Ciudad de México", desc: "Envíos a toda la República" },
-                  { icon: "💬", title: "WhatsApp", info: "+52 (55) 9876-5432", desc: "Atención inmediata" }
+                  { icon: "💬", title: "WhatsApp", info: "+52 (56) 6054-7499", desc: "Atención inmediata" }
                 ].map((contact, index) => (
                   <div key={index} className="flex items-start space-x-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300">
                     <div className="text-2xl">{contact.icon}</div>
@@ -140,7 +159,7 @@ const ContactForm = () => {
           <div className={`transition-all duration-1000 delay-500 ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'}`}>
             <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
               {!submitted ? (
-                <form className="space-y-6" netlify>
+                <form className="space-y-6" onSubmit={handleSubmit}>
                   <div className="grid md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-white font-medium mb-2">Nombre Completo *</label>
@@ -177,7 +196,7 @@ const ContactForm = () => {
                         value={formData.phone}
                         onChange={handleInputChange}
                         className="w-full px-4 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg text-white placeholder-gray-300 focus:outline-none focus:border-red-400 focus:ring-2 focus:ring-red-400/50 transition-all duration-300"
-                        placeholder="+52 (55) 1234-5678"
+                        placeholder="+52 (56) 6054-7499"
                       />
                     </div>
                     <div>
