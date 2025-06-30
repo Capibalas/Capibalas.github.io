@@ -22,12 +22,23 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firebase services
 let analytics;
 try {
-  analytics = getAnalytics(app);
+  // Only initialize analytics in production
+  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+    analytics = getAnalytics(app);
+  }
 } catch (error) {
   console.warn('Analytics not available:', error);
 }
 
-export const db = getFirestore(app);
+// Configure Firestore settings for production
+import { initializeFirestore, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
+
+// Use initializeFirestore with better settings for production
+export const db = initializeFirestore(app, {
+  cacheSizeBytes: CACHE_SIZE_UNLIMITED,
+  ignoreUndefinedProperties: true
+});
+
 export const auth = getAuth(app);
 export const storage = getStorage(app);
 export { analytics };
