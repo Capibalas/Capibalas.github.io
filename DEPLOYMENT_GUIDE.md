@@ -7,18 +7,26 @@
 - ✅ Added NPM_FLAGS for proper dependency installation
 - ✅ Reorganized environment variables section
 - ✅ Added `/portal` route redirects for client portal
+- ✅ Fixed Cross-Origin-Opener-Policy issues
+- ✅ Added Cross-Origin-Embedder-Policy settings
 
 ### 2. Vite Configuration (`vite.config.js`)
 - ✅ Added proper build optimization
-- ✅ Configured manual chunks for better loading
+- ✅ Configured manual chunks for better loading (vendor, firebase, charts, pdf)
 - ✅ Added Firebase-specific optimizations
-- ✅ Increased chunk size warning limit
+- ✅ Increased chunk size warning limit to 1000KB
 
 ### 3. Firebase Configuration (`src/firebase/config.js`)
-- ✅ Fixed Firestore initialization for production
-- ✅ Added proper cache settings
-- ✅ Conditional analytics loading (production only)
-- ✅ Added `ignoreUndefinedProperties` for better error handling
+- ✅ Simplified Firestore initialization (removed conflicting initializeFirestore)
+- ✅ Fixed analytics loading (production only)
+- ✅ Better error handling for connection issues
+- ✅ Proper hostname detection for production vs localhost
+
+### 4. Production Firebase Handling
+- ✅ Added `src/firebase/production.js` for production-specific error handling
+- ✅ Added `src/firebase/init.js` for proper Firebase initialization
+- ✅ Enhanced error handling for INTERNAL ASSERTION FAILED errors
+- ✅ Added retry logic and persistence clearing
 
 ## Deployment Steps
 
@@ -75,7 +83,30 @@ If you still see Firebase errors:
 
 ## Performance Optimizations Applied
 
-1. **Code Splitting**: Separated vendor, Firebase, charts, and PDF libraries
+1. **Code Splitting**: Separated vendor, Firebase, charts, and PDF libraries into distinct chunks
 2. **Caching**: Configured proper cache headers for static assets
-3. **Firebase**: Optimized Firestore settings for production
+3. **Firebase**: Optimized Firestore settings for production with proper initialization
 4. **Build**: Disabled source maps for smaller bundle size
+5. **Error Recovery**: Added automatic retry logic for Firebase operations
+6. **Persistence**: Proper handling of IndexedDB persistence clearing
+
+## Latest Fixes Applied
+
+### Cross-Origin Policy Issues
+- Fixed Cross-Origin-Opener-Policy errors by setting `same-origin-allow-popups`
+- Added Cross-Origin-Embedder-Policy as `unsafe-none`
+- Changed X-Frame-Options from DENY to SAMEORIGIN
+
+### Firestore Internal Assertion Failures
+- Simplified Firebase initialization to avoid conflicts
+- Added production-specific error handling
+- Implemented automatic persistence clearing and retry logic
+- Enhanced error messages for better debugging
+
+### Build Optimization
+- Improved chunk splitting with separate bundles for:
+  - Vendor libraries (React, React Router)
+  - Firebase services
+  - Chart.js libraries
+  - PDF generation libraries
+- Reduced main bundle size significantly

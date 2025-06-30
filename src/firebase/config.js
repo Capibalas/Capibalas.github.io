@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
@@ -19,36 +19,29 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Initialize Firebase services
+// Initialize Firebase services with proper error handling
+export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const storage = getStorage(app);
+
+// Initialize analytics only in production and when available
 let analytics;
 try {
-  // Only initialize analytics in production
-  if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+  if (typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1') {
     analytics = getAnalytics(app);
   }
 } catch (error) {
   console.warn('Analytics not available:', error);
 }
 
-// Configure Firestore settings for production
-import { initializeFirestore, CACHE_SIZE_UNLIMITED } from "firebase/firestore";
-
-// Use initializeFirestore with better settings for production
-export const db = initializeFirestore(app, {
-  cacheSizeBytes: CACHE_SIZE_UNLIMITED,
-  ignoreUndefinedProperties: true
-});
-
-export const auth = getAuth(app);
-export const storage = getStorage(app);
 export { analytics };
 
-// Enable offline persistence
-import { enableNetwork, disableNetwork } from "firebase/firestore";
-
-// Function to check Firebase connection
+// Function to check Firebase connection with better error handling
 export const checkFirebaseConnection = async () => {
   try {
+    // Simple connection test - try to enable network
     await enableNetwork(db);
     console.log('Firebase connected successfully');
     return true;
@@ -60,7 +53,7 @@ export const checkFirebaseConnection = async () => {
       console.error('Firestore database not found or permission denied. Please create the Firestore database in Firebase Console.');
     } else if (error.code === 'unavailable') {
       console.error('Firebase service unavailable. Check your internet connection.');
-    } else if (error.message.includes('400')) {
+    } else if (error.message && error.message.includes('400')) {
       console.error('Bad Request: Firestore database may not be initialized. Please create the database in Firebase Console.');
     }
     

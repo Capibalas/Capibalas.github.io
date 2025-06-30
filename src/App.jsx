@@ -12,6 +12,8 @@ import ProductDetail from './pages/ProductDetail'
 import Login from './components/Login'
 import ClientPortal from './pages/ClientPortal'
 import { AuthProvider, useAuth, ProtectedRoute } from './contexts/AuthContext'
+// Import Firebase initialization for production
+import './firebase/init.js'
 
 // Landing Page Component
 const LandingPage = () => {

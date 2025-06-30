@@ -13,10 +13,22 @@ import {
   setDoc
 } from 'firebase/firestore';
 import { db, checkFirebaseConnection } from './config.js';
+import { handleProductionFirestoreError } from './production.js';
 
 // Helper function to handle Firebase errors
 const handleFirebaseError = (error, operation) => {
   console.error(`Firebase ${operation} error:`, error);
+  
+  // Check if we're in production and use production error handler
+  if (typeof window !== 'undefined' &&
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1') {
+    const result = handleProductionFirestoreError(error, operation);
+    if (!result.success) {
+      throw new Error(result.error);
+    }
+    return;
+  }
   
   if (error.code === 'permission-denied') {
     throw new Error('No tienes permisos para realizar esta operación. Verifica las reglas de Firestore.');
@@ -28,6 +40,10 @@ const handleFirebaseError = (error, operation) => {
     // Handle duplicate document errors more gracefully
     console.warn(`Duplicate document detected in ${operation}, continuing...`);
     return; // Don't throw error for duplicates
+  } else if (error.message && error.message.includes('INTERNAL ASSERTION FAILED')) {
+    // Handle internal assertion failures
+    console.warn(`Internal assertion failed in ${operation}, this is usually temporary`);
+    throw new Error('Error temporal de la base de datos. Por favor, recarga la página.');
   } else {
     throw new Error(`Error en ${operation}: ${error.message}`);
   }
