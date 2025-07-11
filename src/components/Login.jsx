@@ -17,14 +17,10 @@ const Login = () => {
   // Redirigir si ya está autenticado
   useEffect(() => {
     if (user) {
-      if (isAdmin) {
-        navigate('/dashboard')
-      } else {
-        // Usuario autenticado pero no admin, mostrar mensaje
-        setError('Tu cuenta no tiene permisos de administrador para acceder al portal B2B.')
-      }
+      // Todos los usuarios autenticados pueden acceder al portal B2B
+      navigate('/portal')
     }
-  }, [user, isAdmin, navigate])
+  }, [user, navigate])
 
   const handleGoogleLogin = async () => {
     setIsLoading(true)
@@ -177,16 +173,16 @@ const Login = () => {
           )}
 
           {/* Info */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-xl">
             <div className="flex items-start space-x-3">
-              <div className="text-blue-500 text-lg">ℹ️</div>
+              <div className="text-green-500 text-lg">✅</div>
               <div>
-                <p className="text-blue-800 text-sm font-medium mb-1">
-                  Acceso Restringido
+                <p className="text-green-800 text-sm font-medium mb-1">
+                  Portal B2B Abierto
                 </p>
-                <p className="text-blue-700 text-xs">
-                  Solo administradores autorizados pueden acceder al portal B2B. 
-                  Si no tienes permisos, contacta al administrador del sistema.
+                <p className="text-green-700 text-xs">
+                  Cualquier cliente puede acceder al portal B2B con su cuenta de Google.
+                  Inicia sesión para explorar nuestros productos y servicios empresariales.
                 </p>
               </div>
             </div>
