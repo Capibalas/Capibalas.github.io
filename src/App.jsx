@@ -12,8 +12,13 @@ import ProductDetail from './pages/ProductDetail'
 import Login from './components/Login'
 import ClientPortal from './pages/ClientPortal'
 import { AuthProvider, useAuth, ProtectedRoute } from './contexts/AuthContext'
+import ErrorBoundary from './components/ErrorBoundary'
 // Import Firebase initialization for production
 import './firebase/init.js'
+// Import Firebase debug utilities (makes them available in browser console)
+import './utils/firebaseDebug.js'
+// Import cache error testing utilities
+import './utils/testCacheError.js'
 
 // Landing Page Component
 const LandingPage = () => {
@@ -122,10 +127,11 @@ const Navigation = () => {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen">
-          <Routes>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <div className="min-h-screen">
+            <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/productos" element={
               <>
@@ -163,10 +169,11 @@ function App() {
                 <AdminPanel />
               </ProtectedRoute>
             } />
-          </Routes>
-        </div>
-      </Router>
-    </AuthProvider>
+            </Routes>
+          </div>
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   )
 }
 

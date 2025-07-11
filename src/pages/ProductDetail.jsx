@@ -159,31 +159,6 @@ const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      {/* Navigation */}
-      <nav className="bg-white/95 backdrop-blur-md shadow-xl border-b border-slate-200/50 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex justify-between items-center h-20">
-            <Link to="/" className="group flex items-center space-x-2">
-              <img 
-                src="/logo png.png" 
-                alt="BestWhipMX Logo" 
-                className="h-12 w-auto"
-              />
-            </Link>
-            <div className="flex items-center space-x-6">
-              <Link to="/" className="text-slate-700 hover:text-red-600 transition-colors font-medium">
-                Inicio
-              </Link>
-              <Link to="/#productos" className="text-slate-700 hover:text-red-600 transition-colors font-medium">
-                Productos
-              </Link>
-              <Link to="/#contacto" className="text-slate-700 hover:text-red-600 transition-colors font-medium">
-                Contacto
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
 
       {/* Breadcrumb */}
       <div className="max-w-7xl mx-auto px-6 py-6">

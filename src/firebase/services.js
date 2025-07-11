@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { db, checkFirebaseConnection } from './config.js';
 import { handleProductionFirestoreError } from './production.js';
+import { cacheManager } from './cacheManager.js';
 
 // Helper function to handle Firebase errors
 const handleFirebaseError = (error, operation) => {
@@ -49,24 +50,33 @@ const handleFirebaseError = (error, operation) => {
   }
 };
 
-// Check connection before operations with retry logic
+// Check connection before operations with cache manager
 const ensureConnection = async (retries = 3) => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const isConnected = await checkFirebaseConnection();
-      if (isConnected) {
-        return true;
+  try {
+    // Use cache manager for initialization
+    await cacheManager.initializeWithRetry();
+    return true;
+  } catch (error) {
+    console.error('Cache manager initialization failed:', error);
+    
+    // Fallback to original connection check
+    for (let i = 0; i < retries; i++) {
+      try {
+        const isConnected = await checkFirebaseConnection();
+        if (isConnected) {
+          return true;
+        }
+      } catch (connectionError) {
+        console.warn(`Connection attempt ${i + 1} failed:`, connectionError.message);
+        if (i === retries - 1) {
+          throw new Error('Database cache issue, please refresh the page');
+        }
+        // Wait before retry
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
       }
-    } catch (error) {
-      console.warn(`Connection attempt ${i + 1} failed:`, error.message);
-      if (i === retries - 1) {
-        throw new Error('No se puede conectar a Firebase después de varios intentos.');
-      }
-      // Wait before retry
-      await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
     }
+    return false;
   }
-  return false;
 };
 
 // Add delay between operations to prevent concurrent write issues

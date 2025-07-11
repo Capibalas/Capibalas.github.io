@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../firebase/auth';
 import { clientsService, productsService } from '../firebase/services';
+import { cacheManager } from '../firebase/cacheManager';
+import ErrorBoundary from './ErrorBoundary';
 
 const OnboardingDashboard = () => {
   const navigate = useNavigate();
@@ -47,6 +49,9 @@ const OnboardingDashboard = () => {
 
   const loadData = async () => {
     try {
+      // Ensure Firebase is initialized
+      await cacheManager.initializeWithRetry();
+      
       const [clientsData, productsData] = await Promise.all([
         clientsService.getClients(),
         productsService.getProducts()
@@ -63,6 +68,9 @@ const OnboardingDashboard = () => {
       }
     } catch (error) {
       console.error('Error loading data:', error);
+      if (error.message && error.message.includes('cache')) {
+        alert('Error de conexión con la base de datos. Por favor, recarga la página.');
+      }
     }
   };
 
@@ -132,7 +140,8 @@ const OnboardingDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-blue-50">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-blue-50">
       <div className="container mx-auto px-6 py-12">
         
         {/* Header */}
@@ -556,7 +565,8 @@ const OnboardingDashboard = () => {
         </div>
       )}
 
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 };
 

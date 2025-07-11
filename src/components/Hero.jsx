@@ -27,32 +27,6 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30"></div>
       </div>
 
-      {/* Navigation */}
-      <nav className="absolute top-0 left-0 right-0 z-50 p-8">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className={`transition-all duration-1000 ${isVisible ? 'translate-x-0 opacity-100' : '-translate-x-10 opacity-0'}`}>
-            <img
-              src="/logo png.png"
-              alt="BestWhipMX Logo"
-              className="h-12 w-auto"
-            />
-          </div>
-          <div className={`hidden md:flex space-x-8 transition-all duration-1000 delay-300 ${isVisible ? 'translate-y-0 opacity-100' : '-translate-y-10 opacity-0'}`}>
-            <a href="#productos" className="text-white/90 hover:text-emerald-300 transition-all duration-300 font-medium relative group">
-              Productos
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-400 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#caracteristicas" className="text-white/90 hover:text-blue-300 transition-all duration-300 font-medium relative group">
-              Características
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-            </a>
-            <a href="#contacto" className="text-white/90 hover:text-purple-300 transition-all duration-300 font-medium relative group">
-              Contacto
-              <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-purple-400 group-hover:w-full transition-all duration-300"></span>
-            </a>
-          </div>
-        </div>
-      </nav>
 
       {/* Hero Content */}
       <div className="relative z-10 text-center max-w-7xl mx-auto px-6">

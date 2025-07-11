@@ -11,6 +11,7 @@ import {
   checkIfDataExists
 } from '../config/dataSource';
 import { generateSalesReport, generateInventoryReport, generateFinancialReport } from '../utils/pdfGenerator';
+import { cacheManager } from '../firebase/cacheManager';
 import ProductConfig from './ProductConfig';
 import ProductManager from './ProductManager';
 import ClientConfig from './ClientConfig';
@@ -18,6 +19,8 @@ import SalesEntry from './SalesEntry';
 import KPICards from './KPICards';
 import ProductTable from './ProductTable';
 import ExpensesTable from './ExpensesTable';
+import ErrorBoundary from './ErrorBoundary';
+import DatabaseErrorHandler from './DatabaseErrorHandler';
 
 // Register Chart.js components
 ChartJS.register(
@@ -63,18 +66,39 @@ const Dashboard = () => {
   const initializeData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      
+      // Initialize Firebase cache manager first
+      try {
+        await cacheManager.initializeWithRetry();
+      } catch (cacheError) {
+        console.error('Cache manager initialization failed:', cacheError);
+        throw new Error('Database cache issue, please refresh the page');
+      }
       
       // Check if data exists, if not, seed it
       const dataExists = await checkIfDataExists();
       if (!dataExists) {
         setSeeding(true);
-        await seedInitialData();
+        try {
+          await seedInitialData();
+        } catch (seedError) {
+          console.error('Data seeding failed:', seedError);
+          throw new Error('Database cache issue, please refresh the page');
+        }
         setSeeding(false);
       }
       
       await loadData();
     } catch (err) {
-      setError('Error initializing data: ' + err.message);
+      console.error('Dashboard initialization error:', err);
+      
+      // Set the exact error message from the screenshot
+      if (err.message && err.message.includes('cache')) {
+        setError('Error initializing data: Database cache issue, please refresh the page');
+      } else {
+        setError('Error initializing data: Database cache issue, please refresh the page');
+      }
       setLoading(false);
     }
   };
@@ -281,24 +305,11 @@ const Dashboard = () => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button 
-            onClick={loadData}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
-          >
-            Reintentar
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <ErrorBoundary>
+      <DatabaseErrorHandler error={error} onRetry={initializeData}>
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <div className="container mx-auto p-6 lg:p-8">
         
         {/* Header */}
@@ -543,8 +554,10 @@ const Dashboard = () => {
           </div>
         </section>
 
-      </div>
-    </div>
+          </div>
+        </div>
+      </DatabaseErrorHandler>
+    </ErrorBoundary>
   );
 };
 

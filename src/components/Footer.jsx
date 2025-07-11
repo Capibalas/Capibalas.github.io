@@ -114,7 +114,7 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <span className="text-red-400 mt-1">📞</span>
                 <div>
-                  <p className="text-gray-400">+52 (55) 1234-5678</p>
+                  <p className="text-gray-400">+52 (56) 6054-7499</p>
                   <p className="text-gray-500 text-sm">Lun - Vie: 9:00 AM - 6:00 PM</p>
                 </div>
               </div>
@@ -122,7 +122,7 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <span className="text-red-400 mt-1">✉️</span>
                 <div>
-                  <p className="text-gray-400">info@bestwhipmx.com</p>
+                  <p className="text-gray-400">contacto@bestwhipmx.com</p>
                   <p className="text-gray-500 text-sm">Respuesta en 24 horas</p>
                 </div>
               </div>

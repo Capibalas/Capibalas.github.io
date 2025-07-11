@@ -23,43 +23,60 @@ const Features = () => {
 
   const features = [
     {
-      icon: "⚡",
-      title: "Resultados Instantáneos",
-      description: "Crea espumas, mousses y texturas perfectas en segundos con nuestra tecnología avanzada"
+      icon: "🤝",
+      title: "Tu Aliado Estratégico",
+      description: "No solo vendemos productos, somos tu socio comercial que se encarga de toda la cadena de importación para que tú te enfoques en tu negocio"
+    },
+    {
+      icon: "🌍",
+      title: "Olvídate de Importar",
+      description: "Nosotros nos ocupamos de toda la logística internacional: trámites aduanales, permisos, transporte y almacenamiento"
+    },
+    {
+      icon: "📦",
+      title: "Inventario Siempre Disponible",
+      description: "Mantenemos stock permanente en México para garantizar entregas inmediatas sin esperas de importación"
+    },
+    {
+      icon: "💰",
+      title: "Precios Competitivos",
+      description: "Al importar en grandes volúmenes, te ofrecemos los mejores precios del mercado con márgenes atractivos para tu negocio"
+    },
+    {
+      icon: "🚚",
+      title: "Logística Completa",
+      description: "Entrega directa a tu negocio con rutas optimizadas y seguimiento en tiempo real de todos tus pedidos"
     },
     {
       icon: "🎯",
-      title: "Precisión Profesional",
-      description: "Válvulas de alta precisión que garantizan control total sobre cada preparación"
+      title: "Soporte Comercial 360°",
+      description: "Capacitación técnica, material promocional, asesoría de ventas y soporte post-venta especializado"
     },
     {
-      icon: "🔧",
-      title: "Fácil Mantenimiento",
-      description: "Diseño intuitivo que facilita la limpieza y el mantenimiento diario"
+      icon: "📈",
+      title: "Crecimiento Conjunto",
+      description: "Planes de crecimiento personalizados, financiamiento flexible y estrategias de mercado para expandir tu negocio"
     },
     {
-      icon: "🏆",
-      title: "Calidad Premium",
-      description: "Materiales de grado alimentario que cumplen con los más altos estándares de calidad"
+      icon: "🔒",
+      title: "Garantía Total",
+      description: "Respaldamos cada producto con garantía completa y servicio técnico especializado en territorio nacional"
     },
     {
-      icon: "🌟",
-      title: "Versatilidad Total",
-      description: "Compatible con una amplia gama de ingredientes y preparaciones culinarias"
-    },
-    {
-      icon: "💎",
-      title: "Durabilidad Garantizada",
-      description: "Construcción robusta diseñada para resistir el uso intensivo en cocinas profesionales"
+      icon: "⚡",
+      title: "Respuesta Inmediata",
+      description: "Equipo dedicado disponible para resolver cualquier situación comercial o técnica en tiempo récord"
     }
   ]
 
   const benefits = [
-    "Mejora la presentación de tus platos",
-    "Reduce tiempo de preparación",
-    "Incrementa la creatividad culinaria",
-    "Garantiza consistencia en resultados",
-    "Optimiza costos operativos"
+    "Eliminas todos los riesgos y costos de importación",
+    "Reduces tiempo de gestión administrativa",
+    "Obtienes precios mayoristas sin volúmenes mínimos",
+    "Accedes a productos premium con garantía local",
+    "Recibes soporte técnico y comercial especializado",
+    "Cuentas con inventario disponible 24/7",
+    "Optimizas tu flujo de caja con términos flexibles"
   ]
 
   return (
@@ -74,11 +91,16 @@ const Features = () => {
         {/* Section Header */}
         <div className={`text-center mb-16 transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            ¿Por qué elegir <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">BestWhip</span>?
+            ¿Por qué elegir <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">BestWhip</span> como tu <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800">Socio Estratégico</span>?
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Descubre las características que hacen de nuestros productos la elección preferida de chefs profesionales
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
+            <strong>No solo vendemos productos</strong> - somos tu aliado estratégico que se encarga de toda la importación para que tú te enfoques en hacer crecer tu negocio
           </p>
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 max-w-4xl mx-auto rounded-r-lg">
+            <p className="text-lg text-red-800 font-semibold">
+              🤝 <strong>Tu Socio Estratégico:</strong> Nosotros nos ocupamos de importar, tú te ocupas de vender
+            </p>
+          </div>
         </div>
 
         {/* Features Grid */}
@@ -111,10 +133,10 @@ const Features = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <h3 className="text-3xl font-bold mb-6">
-                Transforma tu cocina con BestWhip
+                Tu Socio Estratégico de Confianza
               </h3>
               <p className="text-red-100 text-lg mb-8 leading-relaxed">
-                Únete a miles de chefs que ya han revolucionado sus preparaciones con nuestros productos de calidad profesional.
+                Únete a cientos de empresarios que han simplificado su operación al confiar en nosotros toda la gestión de importación y logística.
               </p>
               <button className="bg-white text-red-600 hover:bg-gray-100 px-8 py-4 rounded-full font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-lg">
                 Comenzar Ahora
@@ -122,7 +144,7 @@ const Features = () => {
             </div>
             <div>
               <h4 className="text-xl font-semibold mb-6 text-red-100">
-                Beneficios inmediatos:
+                Ventajas de ser nuestro socio comercial:
               </h4>
               <ul className="space-y-4">
                 {benefits.map((benefit, index) => (
@@ -145,10 +167,10 @@ const Features = () => {
         {/* Stats Section */}
         <div className={`mt-20 grid grid-cols-2 lg:grid-cols-4 gap-8 transition-all duration-1000 delay-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
           {[
-            { number: "500+", label: "Chefs Satisfechos" },
-            { number: "99%", label: "Pureza N2O" },
-            { number: "24/7", label: "Soporte Técnico" },
-            { number: "2 años", label: "Garantía" }
+            { number: "200+", label: "Socios Comerciales" },
+            { number: "99.9%", label: "Disponibilidad Stock" },
+            { number: "24/7", label: "Soporte Comercial" },
+            { number: "100%", label: "Gestión Importación" }
           ].map((stat, index) => (
             <div key={index} className="text-center">
               <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-red-800 mb-2">
