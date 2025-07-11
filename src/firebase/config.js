@@ -1,46 +1,58 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getFirestore, connectFirestoreEmulator, enableNetwork, disableNetwork } from "firebase/firestore";
+import { getFirestore, enableNetwork, disableNetwork } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getFirebaseConfig } from "../utils/netlifyConfig";
 
 // Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCKh6ifKk0fXQlAy-ixQq-JRoAh4ppjUl0",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "bestwhip-67e0b.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "bestwhip-67e0b",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "bestwhip-67e0b.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "886546495426",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:886546495426:web:f8f87f0938ec2dfec8085b",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-GEJR9MKLTL"
-};
+const firebaseConfig = getFirebaseConfig();
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase services with proper error handling
-export const db = getFirestore(app);
-export const auth = getAuth(app);
-export const storage = getStorage(app);
-
-// Initialize analytics only in production and when available
+let app;
+let db;
+let auth;
+let storage;
 let analytics;
+
 try {
+  app = initializeApp(firebaseConfig);
+  console.log('Firebase app initialized successfully');
+  
+  // Initialize Firebase services with proper error handling
+  db = getFirestore(app);
+  auth = getAuth(app);
+  storage = getStorage(app);
+  
+  console.log('Firebase services initialized successfully');
+  
+  // Initialize analytics only in production and when available
   if (typeof window !== 'undefined' &&
-      window.location.hostname !== 'localhost' &&
-      window.location.hostname !== '127.0.0.1') {
-    analytics = getAnalytics(app);
+      !window.location.hostname.includes('localhost') &&
+      !window.location.hostname.includes('127.0.0.1') &&
+      !window.location.hostname.includes('192.168')) {
+    try {
+      analytics = getAnalytics(app);
+      console.log('Analytics initialized successfully');
+    } catch (error) {
+      console.warn('Analytics not available:', error);
+    }
   }
 } catch (error) {
-  console.warn('Analytics not available:', error);
+  console.error('Error initializing Firebase:', error);
+  throw error;
 }
 
-export { analytics };
+export { db, auth, storage, analytics };
 
 // Function to check Firebase connection with better error handling
 export const checkFirebaseConnection = async () => {
   try {
+    if (!db) {
+      throw new Error('Firestore not initialized');
+    }
+    
     // Simple connection test - try to enable network
     await enableNetwork(db);
     console.log('Firebase connected successfully');

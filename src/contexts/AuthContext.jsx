@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { authService } from '../firebase/auth'
 import { isAdminEmail, isSuperAdmin } from '../config/adminConfig'
+import { handleFirebaseError, retryFirebaseOperation } from '../utils/netlifyConfig'
 
 const AuthContext = createContext()
 
@@ -50,14 +51,20 @@ export const AuthProvider = ({ children }) => {
 
   const login = async () => {
     try {
-      const result = await authService.signInWithGoogle()
+      const result = await retryFirebaseOperation(
+        () => authService.signInWithGoogle(),
+        3, // 3 intentos
+        1000 // 1 segundo de delay
+      )
+      
       if (result.success) {
         return { success: true, user: result.user }
       } else {
         return { success: false, error: result.error }
       }
     } catch (error) {
-      return { success: false, error: error.message }
+      const handledError = handleFirebaseError(error.originalError || error)
+      return { success: false, error: handledError.message }
     }
   }
 
