@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import { authService } from '../firebase/auth'
-import { isAdminEmail } from '../config/adminConfig'
+import { isAdminEmail, isSuperAdmin } from '../config/adminConfig'
 
 const AuthContext = createContext()
 
@@ -16,6 +16,7 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isSuperAdminUser, setIsSuperAdminUser] = useState(false)
   const [devMode, setDevMode] = useState(false)
 
   useEffect(() => {
@@ -25,15 +26,20 @@ export const AuthProvider = ({ children }) => {
       // Verificar si el usuario es administrador
       if (user && user.email) {
         const userIsAdmin = isAdminEmail(user.email)
+        const userIsSuperAdmin = isSuperAdmin(user.email)
         setIsAdmin(userIsAdmin)
+        setIsSuperAdminUser(userIsSuperAdmin)
         
-        if (userIsAdmin) {
+        if (userIsSuperAdmin) {
+          console.log('🔥 Super Admin access granted for:', user.email)
+        } else if (userIsAdmin) {
           console.log('✅ Admin access granted for:', user.email)
         } else {
           console.log('❌ Admin access denied for:', user.email)
         }
       } else {
         setIsAdmin(false)
+        setIsSuperAdminUser(false)
       }
       
       setLoading(false)
@@ -60,6 +66,7 @@ export const AuthProvider = ({ children }) => {
       await authService.signOut()
       setUser(null)
       setIsAdmin(false)
+      setIsSuperAdminUser(false)
       return { success: true }
     } catch (error) {
       return { success: false, error: error.message }
@@ -100,6 +107,7 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     isAdmin,
+    isSuperAdmin: isSuperAdminUser,
     loading,
     login,
     logout,

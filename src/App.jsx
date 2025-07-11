@@ -36,7 +36,7 @@ const LandingPage = () => {
 
 // Navigation Component
 const Navigation = () => {
-  const { user, isAdmin, logout } = useAuth()
+  const { user, isAdmin, isSuperAdmin, logout } = useAuth()
 
   const handleLogout = async () => {
     await logout()
@@ -69,7 +69,7 @@ const Navigation = () => {
                   <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
                 </Link>
               )}
-              {isAdmin && (
+              {isSuperAdmin && (
                 <>
                   <Link to="/dashboard" className="relative text-slate-700 hover:text-red-600 transition-all duration-300 font-medium group">
                     Dashboard Admin
@@ -96,7 +96,7 @@ const Navigation = () => {
                     <p className="text-sm font-medium text-slate-900">
                       {user.displayName || 'Usuario'}
                     </p>
-                    {isAdmin && (
+                    {isSuperAdmin && (
                       <p className="text-xs text-red-600 font-medium">
                         Administrador
                       </p>

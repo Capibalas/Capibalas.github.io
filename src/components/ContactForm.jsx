@@ -127,7 +127,7 @@ ${formData.message}
               <div className="space-y-6">
                 {[
                   { icon: "📞", title: "Teléfono", info: "+52 (56) 6054-7499", desc: "Lun - Vie: 9:00 AM - 6:00 PM" },
-                  { icon: "✉️", title: "Email", info: "contacto@bestwhip.com.mx", desc: "Respuesta en 24 horas" },
+                  { icon: "✉️", title: "Email", info: "contacto@bestwhipmx.com", desc: "Respuesta en 24 horas" },
                   { icon: "📍", title: "Ubicación", info: "Ciudad de México", desc: "Envíos a toda la República" },
                   { icon: "💬", title: "WhatsApp", info: "+52 (56) 6054-7499", desc: "Atención inmediata" }
                 ].map((contact, index) => (

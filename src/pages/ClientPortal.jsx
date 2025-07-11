@@ -55,13 +55,16 @@ const ClientPortal = () => {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100">
-      {/* Toggle Button for Desktop */}
+      {/* Toggle Button for Desktop - Repositioned */}
       <button
         onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-        className="fixed top-4 z-[60] hidden lg:flex bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg shadow-xl transition-all duration-300 items-center justify-center border-2 border-white"
-        style={{ left: sidebarCollapsed ? '1rem' : '18.5rem' }}
+        className="fixed top-24 z-[60] hidden lg:flex bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-r-lg shadow-xl transition-all duration-300 items-center justify-center border-2 border-white"
+        style={{
+          left: sidebarCollapsed ? '0' : '18rem',
+          transform: sidebarCollapsed ? 'translateX(0)' : 'translateX(0)'
+        }}
       >
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           {sidebarCollapsed ? (
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           ) : (
