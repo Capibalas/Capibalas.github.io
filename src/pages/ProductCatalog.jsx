@@ -297,12 +297,14 @@ const ProductCatalog = () => {
             <p className="text-slate-600 mb-8 max-w-2xl mx-auto text-lg">
               Contáctanos para soluciones personalizadas y asesoría especializada
             </p>
-            <Link
-              to="/#contacto"
+            <a
+              href="https://wa.me/525660547499?text=Hola,%20me%20interesa%20obtener%20asesoría%20especializada%20sobre%20sus%20productos.%20Estoy%20viendo%20su%20catálogo%20y%20me%20gustaría%20más%20información."
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-block bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-4 px-8 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-red-500/25"
             >
               Contactar Especialista
-            </Link>
+            </a>
           </div>
         </div>
       </div>

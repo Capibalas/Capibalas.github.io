@@ -43,24 +43,26 @@ const ContactForm = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Create email content
-    const emailSubject = `Consulta de ${formData.name} - ${formData.interest || 'Información General'}`
-    const emailBody = `
-Nombre: ${formData.name}
-Email: ${formData.email}
-Teléfono: ${formData.phone}
-Tipo de Negocio: ${formData.business}
-Producto de Interés: ${formData.interest}
+    // Create WhatsApp message
+    const whatsappMessage = `Hola, me interesa obtener información sobre sus productos.
 
-Mensaje:
-${formData.message}
-    `.trim()
+*Datos de contacto:*
+• Nombre: ${formData.name}
+• Email: ${formData.email}
+• Teléfono: ${formData.phone || 'No proporcionado'}
+• Tipo de Negocio: ${formData.business || 'No especificado'}
+• Producto de Interés: ${formData.interest || 'Información general'}
+
+*Mensaje:*
+${formData.message || 'Sin mensaje adicional'}
+
+Gracias por su atención.`
     
-    // Create mailto link
-    const mailtoLink = `mailto:contacto@bestwhip.com.mx?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
+    // Create WhatsApp link
+    const whatsappLink = `https://wa.me/525660547499?text=${encodeURIComponent(whatsappMessage)}`
     
-    // Open email client
-    window.location.href = mailtoLink
+    // Open WhatsApp
+    window.open(whatsappLink, '_blank')
     
     // Simulate processing time
     await new Promise(resolve => setTimeout(resolve, 1000))
@@ -126,19 +128,36 @@ ${formData.message}
               {/* Contact Methods */}
               <div className="space-y-6">
                 {[
-                  { icon: "📞", title: "Teléfono", info: "+52 (56) 6054-7499", desc: "Lun - Vie: 9:00 AM - 6:00 PM" },
-                  { icon: "✉️", title: "Email", info: "contacto@bestwhipmx.com", desc: "Respuesta en 24 horas" },
-                  { icon: "📍", title: "Ubicación", info: "Ciudad de México", desc: "Envíos a toda la República" },
-                  { icon: "💬", title: "WhatsApp", info: "+52 (56) 6054-7499", desc: "Atención inmediata" }
+                  { icon: "📞", title: "Teléfono", info: "+52 (56) 6054-7499", desc: "Lun - Vie: 9:00 AM - 6:00 PM", href: "tel:+525660547499" },
+                  { icon: "✉️", title: "Email", info: "contacto@bestwhipmx.com", desc: "Respuesta en 24 horas", href: "mailto:contacto@bestwhipmx.com" },
+                  { icon: "📍", title: "Ubicación", info: "Ciudad de México", desc: "Envíos a toda la República", href: null },
+                  { icon: "💬", title: "WhatsApp", info: "+52 (56) 6054-7499", desc: "Atención inmediata", href: "https://wa.me/525660547499?text=Hola,%20me%20interesa%20obtener%20información%20sobre%20sus%20productos%20de%20sifones%20y%20cápsulas%20N2O." }
                 ].map((contact, index) => (
-                  <div key={index} className="flex items-start space-x-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300">
-                    <div className="text-2xl">{contact.icon}</div>
-                    <div>
-                      <h4 className="text-white font-semibold">{contact.title}</h4>
-                      <p className="text-red-300 font-medium">{contact.info}</p>
-                      <p className="text-gray-400 text-sm">{contact.desc}</p>
+                  contact.href ? (
+                    <a
+                      key={index}
+                      href={contact.href}
+                      target={contact.title === "WhatsApp" ? "_blank" : "_self"}
+                      rel={contact.title === "WhatsApp" ? "noopener noreferrer" : undefined}
+                      className="flex items-start space-x-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300 cursor-pointer transform hover:scale-105"
+                    >
+                      <div className="text-2xl">{contact.icon}</div>
+                      <div>
+                        <h4 className="text-white font-semibold">{contact.title}</h4>
+                        <p className="text-red-300 font-medium">{contact.info}</p>
+                        <p className="text-gray-400 text-sm">{contact.desc}</p>
+                      </div>
+                    </a>
+                  ) : (
+                    <div key={index} className="flex items-start space-x-4 p-4 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20 hover:bg-white/20 transition-all duration-300">
+                      <div className="text-2xl">{contact.icon}</div>
+                      <div>
+                        <h4 className="text-white font-semibold">{contact.title}</h4>
+                        <p className="text-red-300 font-medium">{contact.info}</p>
+                        <p className="text-gray-400 text-sm">{contact.desc}</p>
+                      </div>
                     </div>
-                  </div>
+                  )
                 ))}
               </div>
 
@@ -250,7 +269,7 @@ ${formData.message}
                         Enviando...
                       </>
                     ) : (
-                      'Obtener Información 🚀'
+                      'Contactar por WhatsApp 💬'
                     )}
                   </button>
                 </form>

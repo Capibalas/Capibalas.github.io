@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { seedProducts } from '../utils/seedProducts'
 import ProductManager from './ProductManager'
+import AdminOrders from './AdminOrders'
 import { useAuth } from '../contexts/AuthContext'
 
 const AdminPanel = () => {
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState('')
-  const [activeTab, setActiveTab] = useState('products')
+  const [activeTab, setActiveTab] = useState('orders')
   const { loginAsDevAdmin, devMode, user } = useAuth()
 
   const handleSeedProducts = async () => {
@@ -65,6 +66,16 @@ const AdminPanel = () => {
             📦 Gestión de Productos
           </button>
           <button
+            onClick={() => setActiveTab('orders')}
+            className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
+              activeTab === 'orders'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            🛒 Administrar Pedidos
+          </button>
+          <button
             onClick={() => setActiveTab('system')}
             className={`flex-1 py-2 px-4 rounded-md font-medium transition-colors ${
               activeTab === 'system'
@@ -80,6 +91,12 @@ const AdminPanel = () => {
         {activeTab === 'products' && (
           <div>
             <ProductManager />
+          </div>
+        )}
+
+        {activeTab === 'orders' && (
+          <div>
+            <AdminOrders />
           </div>
         )}
 

@@ -549,6 +549,41 @@ export const ordersService = {
     } catch (error) {
       handleFirebaseError(error, 'obtener orden');
     }
+  },
+
+  // Get all orders (for admin dashboard)
+  async getAllOrders() {
+    try {
+      await ensureConnection();
+      const q = query(
+        collection(db, 'orders'),
+        orderBy('createdAt', 'desc')
+      );
+      const querySnapshot = await getDocs(q);
+      return querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+    } catch (error) {
+      console.warn('Error getting all orders with query, falling back to simple fetch:', error);
+      // Fallback: get all orders without ordering
+      try {
+        const querySnapshot = await getDocs(collection(db, 'orders'));
+        const allOrders = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        // Sort client-side by creation date
+        return allOrders.sort((a, b) => {
+          const dateA = a.createdAt?.toDate?.() || new Date(a.createdAt || 0);
+          const dateB = b.createdAt?.toDate?.() || new Date(b.createdAt || 0);
+          return dateB - dateA;
+        });
+      } catch (fallbackError) {
+        handleFirebaseError(fallbackError, 'obtener todas las órdenes');
+        return [];
+      }
+    }
   }
 };
 

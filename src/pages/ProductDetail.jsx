@@ -299,9 +299,14 @@ const ProductDetail = () => {
 
               {/* CTA Buttons */}
               <div className="space-y-4">
-                <button className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-4 px-8 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-red-500/25">
+                <a
+                  href={`https://wa.me/525660547499?text=Hola,%20me%20interesa%20solicitar%20una%20cotización%20para%20el%20producto:%20${encodeURIComponent(product.name || product.title)}.%20¿Podrían%20enviarme%20precios%20y%20disponibilidad?`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white py-4 px-8 rounded-2xl font-bold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-red-500/25 block text-center"
+                >
                   Solicitar Cotización
-                </button>
+                </a>
                 <a
                   href={`https://wa.me/525660547499?text=Hola,%20me%20interesa%20obtener%20más%20información%20sobre%20el%20producto:%20${encodeURIComponent(product.name || product.title)}`}
                   target="_blank"

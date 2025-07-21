@@ -124,10 +124,9 @@ const Products = () => {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
             {products.map((product, index) => (
-              <Link
+              <div
                 key={product.id}
-                to={`/producto/${product.id}`}
-                className={`group relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 border border-white/50 overflow-hidden block ${
+                className={`group relative bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 border border-white/50 overflow-hidden ${
                   isVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'
                 }`}
                 style={{ transitionDelay: `${index * 200}ms` }}
@@ -183,15 +182,31 @@ const Products = () => {
                     </div>
                   )}
 
-                  {/* CTA Button */}
-                  <button className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-4 px-6 rounded-2xl font-bold transition-all duration-300 transform group-hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25 flex items-center justify-center space-x-2">
-                    <span>Obtener Información</span>
-                    <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
-                  </button>
+                  {/* CTA Buttons */}
+                  <div className="space-y-3">
+                    <Link
+                      to={`/producto/${product.id}`}
+                      className="w-full bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-3 px-6 rounded-2xl font-bold transition-all duration-300 transform group-hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25 flex items-center justify-center space-x-2"
+                    >
+                      <span>Ver Detalles</span>
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </Link>
+                    <a
+                      href={`https://wa.me/525660547499?text=Hola,%20me%20interesa%20obtener%20más%20información%20sobre%20el%20producto:%20${encodeURIComponent(product.title)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 py-3 px-6 rounded-2xl font-bold transition-all duration-300 transform group-hover:scale-105 flex items-center justify-center space-x-2"
+                    >
+                      <span>Obtener Información</span>
+                      <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                      </svg>
+                    </a>
+                  </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         )}
@@ -218,12 +233,17 @@ const Products = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button className="group bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-4 px-8 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25 flex items-center space-x-2">
+                <a
+                  href="https://wa.me/525660547499?text=Hola,%20me%20interesa%20obtener%20asesoría%20especializada%20sobre%20sus%20productos%20de%20sifones%20y%20cápsulas%20N2O."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-gradient-to-r from-emerald-500 to-blue-600 hover:from-emerald-600 hover:to-blue-700 text-white py-4 px-8 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-emerald-500/25 flex items-center space-x-2"
+                >
                   <span>Contactar Especialista</span>
                   <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
-                </button>
+                </a>
                 
                 <Link to="/productos" className="group border-2 border-slate-300 hover:border-red-500 text-slate-700 hover:text-red-600 py-4 px-8 rounded-2xl font-bold transition-all duration-300 transform hover:scale-105 flex items-center space-x-2">
                   <span>Ver Catálogo Completo</span>

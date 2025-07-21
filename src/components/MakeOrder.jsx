@@ -7,7 +7,7 @@ const MakeOrder = () => {
   const [products, setProducts] = useState([])
   const [cart, setCart] = useState([])
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [showCart, setShowCart] = useState(false)
+  const [showCart, setShowCart] = useState(true)
   const [orderStep, setOrderStep] = useState('products') // products, checkout, confirmation
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -18,6 +18,11 @@ const MakeOrder = () => {
     paymentMethod: 'transferencia',
     notes: ''
   })
+  const [shippingCost, setShippingCost] = useState(0)
+  const [shippingCalculated, setShippingCalculated] = useState(false)
+
+  // Constantes para cálculos
+  const IVA_RATE = 0.16 // 16% IVA en México
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -51,37 +56,113 @@ const MakeOrder = () => {
   const addToCart = (product) => {
     const existingItem = cart.find(item => item.id === product.id)
     if (existingItem) {
-      setCart(cart.map(item => 
-        item.id === product.id 
+      setCart(cart.map(item =>
+        item.id === product.id
           ? { ...item, quantity: item.quantity + product.minOrder }
           : item
       ))
     } else {
       setCart([...cart, { ...product, quantity: product.minOrder }])
     }
+    // Resetear cálculo de envío cuando cambie el carrito
+    setShippingCalculated(false)
+    setShippingCost(0)
   }
 
   const updateQuantity = (productId, newQuantity) => {
     const product = products.find(p => p.id === productId)
     if (newQuantity < product.minOrder) return
     
-    setCart(cart.map(item => 
-      item.id === productId 
+    setCart(cart.map(item =>
+      item.id === productId
         ? { ...item, quantity: newQuantity }
         : item
     ))
+    // Resetear cálculo de envío cuando cambie la cantidad
+    setShippingCalculated(false)
+    setShippingCost(0)
+  }
+
+  // Función para agregar cajas completas de cápsulas
+  const addBoxToCart = (product, boxSize) => {
+    const existingItem = cart.find(item => item.id === product.id)
+    if (existingItem) {
+      setCart(cart.map(item =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + boxSize }
+          : item
+      ))
+    } else {
+      setCart([...cart, { ...product, quantity: boxSize }])
+    }
+    // Resetear cálculo de envío cuando cambie el carrito
+    setShippingCalculated(false)
+    setShippingCost(0)
   }
 
   const removeFromCart = (productId) => {
     setCart(cart.filter(item => item.id !== productId))
+    // Resetear cálculo de envío cuando se remueva un producto
+    setShippingCalculated(false)
+    setShippingCost(0)
+  }
+
+  const getSubtotal = () => {
+    return cart.reduce((total, item) => total + (item.price * item.quantity), 0)
+  }
+
+  const getIVA = () => {
+    return getSubtotal() * IVA_RATE
   }
 
   const getCartTotal = () => {
-    return cart.reduce((total, item) => total + (item.price * item.quantity), 0)
+    return getSubtotal() + getIVA() + shippingCost
   }
 
   const getCartItemCount = () => {
     return cart.reduce((total, item) => total + item.quantity, 0)
+  }
+
+  // Función para calcular envío basado en código postal y peso
+  const calculateShipping = async (postalCode, city) => {
+    try {
+      // Simular cálculo de envío basado en ubicación
+      const weight = getCartItemCount() * 0.1 // Estimamos 100g por producto
+      let baseCost = 150 // Costo base de envío
+      
+      // Ajustar costo según la ciudad/región
+      const cityLower = city.toLowerCase()
+      if (cityLower.includes('cdmx') || cityLower.includes('ciudad de mexico') || cityLower.includes('df')) {
+        baseCost = 100 // CDMX más barato
+      } else if (cityLower.includes('guadalajara') || cityLower.includes('monterrey') || cityLower.includes('puebla')) {
+        baseCost = 120 // Ciudades principales
+      } else if (postalCode.startsWith('0') || postalCode.startsWith('1')) {
+        baseCost = 100 // Zona metropolitana
+      } else {
+        baseCost = 180 // Otras ciudades
+      }
+
+      // Costo adicional por peso
+      const weightCost = Math.ceil(weight) * 15
+      
+      // Envío gratis para pedidos mayores a $3000
+      const subtotal = getSubtotal()
+      if (subtotal >= 3000) {
+        setShippingCost(0)
+        setShippingCalculated(true)
+        return 0
+      }
+
+      const totalShipping = baseCost + weightCost
+      setShippingCost(totalShipping)
+      setShippingCalculated(true)
+      return totalShipping
+    } catch (error) {
+      console.error('Error calculating shipping:', error)
+      setShippingCost(150) // Costo por defecto
+      setShippingCalculated(true)
+      return 150
+    }
   }
 
   const handleCheckout = () => {
@@ -112,6 +193,9 @@ const MakeOrder = () => {
         userId: user.uid,
         userEmail: user.email,
         items: orderItems,
+        subtotal: getSubtotal(),
+        iva: getIVA(),
+        shippingCost: shippingCost,
         total: getCartTotal(),
         shippingAddress: orderData.shippingAddress,
         city: orderData.city,
@@ -194,11 +278,42 @@ const MakeOrder = () => {
                 </div>
               ))}
             </div>
-            <div className="border-t border-slate-200 pt-4 mt-4">
-              <div className="flex justify-between items-center text-xl font-bold text-slate-900">
-                <span>Total:</span>
-                <span>${getCartTotal().toLocaleString()}</span>
+            <div className="border-t border-slate-200 pt-4 mt-4 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-slate-600">Subtotal:</span>
+                <span className="font-bold text-slate-900">${getSubtotal().toLocaleString()}</span>
               </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-slate-600">IVA (16%):</span>
+                <span className="font-bold text-slate-900">${getIVA().toLocaleString()}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-slate-600">Envío:</span>
+                <span className="font-bold text-slate-900">
+                  {shippingCalculated ? (
+                    shippingCost === 0 ? (
+                      <span className="text-green-600">¡GRATIS!</span>
+                    ) : (
+                      `$${shippingCost.toLocaleString()}`
+                    )
+                  ) : (
+                    <span className="text-orange-600">Se calculará automáticamente</span>
+                  )}
+                </span>
+              </div>
+              <div className="border-t border-slate-300 pt-2">
+                <div className="flex justify-between items-center text-xl font-bold text-slate-900">
+                  <span>Total:</span>
+                  <span>${getCartTotal().toLocaleString()}</span>
+                </div>
+              </div>
+              {getSubtotal() >= 3000 && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
+                  <p className="text-xs text-green-700 text-center font-medium">
+                    🎉 ¡Envío gratis por compra mayor a $3,000!
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -228,7 +343,13 @@ const MakeOrder = () => {
                   <input
                     type="text"
                     value={orderData.city}
-                    onChange={(e) => handleOrderDataChange('city', e.target.value)}
+                    onChange={(e) => {
+                      handleOrderDataChange('city', e.target.value)
+                      // Calcular envío automáticamente si ambos campos están llenos
+                      if (e.target.value && orderData.postalCode) {
+                        calculateShipping(orderData.postalCode, e.target.value)
+                      }
+                    }}
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     placeholder="Ciudad"
                     required
@@ -241,7 +362,13 @@ const MakeOrder = () => {
                   <input
                     type="text"
                     value={orderData.postalCode}
-                    onChange={(e) => handleOrderDataChange('postalCode', e.target.value)}
+                    onChange={(e) => {
+                      handleOrderDataChange('postalCode', e.target.value)
+                      // Calcular envío automáticamente si ambos campos están llenos
+                      if (e.target.value && orderData.city) {
+                        calculateShipping(e.target.value, orderData.city)
+                      }
+                    }}
                     className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
                     placeholder="CP"
                     required
@@ -394,6 +521,33 @@ const MakeOrder = () => {
           </div>
         )}
 
+        {/* Información sobre presentaciones de cajas */}
+        <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-2xl p-6 mb-8">
+          <div className="flex items-start space-x-4">
+            <div className="text-4xl">📦</div>
+            <div className="flex-1">
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Presentaciones de Cápsulas</h3>
+              <p className="text-slate-700 mb-3">
+                Nuestras cápsulas de N2O están disponibles en presentaciones de caja completa para garantizar la mejor calidad y precio.
+              </p>
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="bg-blue-100 border border-blue-300 rounded-lg p-3">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="text-blue-600 font-bold">📦 Caja de 36 piezas</span>
+                  </div>
+                  <p className="text-sm text-blue-700">Ideal para uso moderado y pruebas</p>
+                </div>
+                <div className="bg-green-100 border border-green-300 rounded-lg p-3">
+                  <div className="flex items-center space-x-2 mb-1">
+                    <span className="text-green-600 font-bold">📦 Caja de 54 piezas</span>
+                  </div>
+                  <p className="text-sm text-green-700">Mejor precio por unidad, ideal para uso frecuente</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Enhanced Category Filter */}
         <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 mb-8">
           <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center">
@@ -471,25 +625,164 @@ const MakeOrder = () => {
                           <span className="text-sm font-medium text-slate-600">Mín. pedido:</span>
                           <span className="text-sm font-bold text-slate-900">{product.minOrder}</span>
                         </div>
+                        
+                        {/* Información de presentación de cajas */}
+                        {product.category === 'capsulas' && (
+                          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
+                            <div className="flex items-center space-x-2 mb-2">
+                              <span className="text-blue-600 text-lg">📦</span>
+                              <span className="text-sm font-bold text-blue-800">Presentaciones Disponibles:</span>
+                            </div>
+                            <div className="text-xs text-blue-700 space-y-1">
+                              <div className="flex justify-between">
+                                <span>• Caja de 36 piezas</span>
+                                <span className="font-medium">${(product.price * 36).toLocaleString()}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>• Caja de 54 piezas</span>
+                                <span className="font-medium">${(product.price * 54).toLocaleString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
-                      <button
-                        onClick={() => addToCart(product)}
-                        disabled={product.stock === 0}
-                        className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-xl font-bold text-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
-                      >
-                        {product.stock === 0 ? (
-                          <span className="flex items-center justify-center">
-                            <span className="text-xl mr-2">❌</span>
-                            Sin Stock
-                          </span>
-                        ) : (
-                          <span className="flex items-center justify-center">
-                            <span className="text-xl mr-2">🛒</span>
-                            Agregar al Carrito
-                          </span>
-                        )}
-                      </button>
+                      {product.category === 'capsulas' ? (
+                        <div className="space-y-3">
+                          {/* Selector de cantidad personalizada para cápsulas */}
+                          <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
+                            <label className="block text-sm font-medium text-purple-700 mb-2">
+                              Cantidad personalizada:
+                            </label>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="number"
+                                min={product.minOrder}
+                                max={product.stock}
+                                defaultValue={product.minOrder}
+                                className="flex-1 px-3 py-2 border border-purple-300 rounded-lg text-center focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                id={`quantity-${product.id}`}
+                              />
+                              <button
+                                onClick={() => {
+                                  const input = document.getElementById(`quantity-${product.id}`)
+                                  const quantity = parseInt(input.value) || product.minOrder
+                                  if (quantity >= product.minOrder && quantity <= product.stock) {
+                                    const customProduct = { ...product, quantity }
+                                    setCart(prev => {
+                                      const existing = prev.find(item => item.id === product.id)
+                                      if (existing) {
+                                        return prev.map(item =>
+                                          item.id === product.id
+                                            ? { ...item, quantity: item.quantity + quantity }
+                                            : item
+                                        )
+                                      } else {
+                                        return [...prev, { ...product, quantity }]
+                                      }
+                                    })
+                                    setShippingCalculated(false)
+                                    setShippingCost(0)
+                                  }
+                                }}
+                                disabled={product.stock === 0}
+                                className="bg-purple-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-purple-600 transition-colors disabled:opacity-50"
+                              >
+                                ➕
+                              </button>
+                            </div>
+                          </div>
+                          
+                          {/* Botones de cajas predefinidas */}
+                          <div className="space-y-2">
+                            <button
+                              onClick={() => addBoxToCart(product, 36)}
+                              disabled={product.stock === 0}
+                              className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl font-bold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
+                            >
+                              <span className="flex items-center justify-center">
+                                <span className="text-lg mr-2">📦</span>
+                                Caja 36 piezas - ${(product.price * 36).toLocaleString()}
+                              </span>
+                            </button>
+                            <button
+                              onClick={() => addBoxToCart(product, 54)}
+                              disabled={product.stock === 0}
+                              className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl font-bold hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
+                            >
+                              <span className="flex items-center justify-center">
+                                <span className="text-lg mr-2">📦</span>
+                                Caja 54 piezas - ${(product.price * 54).toLocaleString()}
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {/* Selector de cantidad para otros productos */}
+                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                            <label className="block text-sm font-medium text-slate-700 mb-2">
+                              Cantidad:
+                            </label>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="number"
+                                min={product.minOrder}
+                                max={product.stock}
+                                defaultValue={product.minOrder}
+                                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-center focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                                id={`quantity-${product.id}`}
+                              />
+                              <button
+                                onClick={() => {
+                                  const input = document.getElementById(`quantity-${product.id}`)
+                                  const quantity = parseInt(input.value) || product.minOrder
+                                  if (quantity >= product.minOrder && quantity <= product.stock) {
+                                    const customProduct = { ...product, quantity }
+                                    setCart(prev => {
+                                      const existing = prev.find(item => item.id === product.id)
+                                      if (existing) {
+                                        return prev.map(item =>
+                                          item.id === product.id
+                                            ? { ...item, quantity: item.quantity + quantity }
+                                            : item
+                                        )
+                                      } else {
+                                        return [...prev, { ...product, quantity }]
+                                      }
+                                    })
+                                    setShippingCalculated(false)
+                                    setShippingCost(0)
+                                  }
+                                }}
+                                disabled={product.stock === 0}
+                                className="bg-red-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-red-600 transition-colors disabled:opacity-50"
+                              >
+                                🛒
+                              </button>
+                            </div>
+                          </div>
+                          
+                          {/* Botón rápido con cantidad mínima */}
+                          <button
+                            onClick={() => addToCart(product)}
+                            disabled={product.stock === 0}
+                            className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-xl font-bold text-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-lg hover:shadow-xl"
+                          >
+                            {product.stock === 0 ? (
+                              <span className="flex items-center justify-center">
+                                <span className="text-xl mr-2">❌</span>
+                                Sin Stock
+                              </span>
+                            ) : (
+                              <span className="flex items-center justify-center">
+                                <span className="text-xl mr-2">🛒</span>
+                                Agregar {product.minOrder} al Carrito
+                              </span>
+                            )}
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -537,21 +830,59 @@ const MakeOrder = () => {
                           
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-2">
-                              <button
-                                onClick={() => updateQuantity(item.id, item.quantity - item.minOrder)}
-                                className="w-8 h-8 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100 font-bold"
-                              >
-                                -
-                              </button>
-                              <span className="text-sm font-bold bg-white px-3 py-1 rounded-lg border border-slate-300">
-                                {item.quantity}
-                              </span>
-                              <button
-                                onClick={() => updateQuantity(item.id, item.quantity + item.minOrder)}
-                                className="w-8 h-8 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100 font-bold"
-                              >
-                                +
-                              </button>
+                              {item.category === 'capsulas' ? (
+                                <>
+                                  <button
+                                    onClick={() => updateQuantity(item.id, Math.max(item.quantity - 36, item.minOrder))}
+                                    className="w-8 h-8 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-bold text-xs"
+                                    title="Quitar caja de 36"
+                                  >
+                                    -36
+                                  </button>
+                                  <button
+                                    onClick={() => updateQuantity(item.id, Math.max(item.quantity - 54, item.minOrder))}
+                                    className="w-8 h-8 bg-green-500 text-white rounded-lg hover:bg-green-600 font-bold text-xs"
+                                    title="Quitar caja de 54"
+                                  >
+                                    -54
+                                  </button>
+                                  <span className="text-sm font-bold bg-white px-3 py-1 rounded-lg border border-slate-300">
+                                    {item.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() => updateQuantity(item.id, item.quantity + 36)}
+                                    className="w-8 h-8 bg-blue-500 text-white rounded-lg hover:bg-blue-600 font-bold text-xs"
+                                    title="Agregar caja de 36"
+                                  >
+                                    +36
+                                  </button>
+                                  <button
+                                    onClick={() => updateQuantity(item.id, item.quantity + 54)}
+                                    className="w-8 h-8 bg-green-500 text-white rounded-lg hover:bg-green-600 font-bold text-xs"
+                                    title="Agregar caja de 54"
+                                  >
+                                    +54
+                                  </button>
+                                </>
+                              ) : (
+                                <>
+                                  <button
+                                    onClick={() => updateQuantity(item.id, item.quantity - item.minOrder)}
+                                    className="w-8 h-8 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100 font-bold"
+                                  >
+                                    -
+                                  </button>
+                                  <span className="text-sm font-bold bg-white px-3 py-1 rounded-lg border border-slate-300">
+                                    {item.quantity}
+                                  </span>
+                                  <button
+                                    onClick={() => updateQuantity(item.id, item.quantity + item.minOrder)}
+                                    className="w-8 h-8 bg-white border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-100 font-bold"
+                                  >
+                                    +
+                                  </button>
+                                </>
+                              )}
                             </div>
                             <span className="font-bold text-slate-900">${(item.price * item.quantity).toLocaleString()}</span>
                           </div>
@@ -560,13 +891,95 @@ const MakeOrder = () => {
                     </div>
 
                     <div className="border-t border-slate-200 pt-6">
-                      <div className="bg-gradient-to-r from-red-50 to-red-100 rounded-xl p-4 mb-4">
+                      <div className="bg-gradient-to-r from-slate-50 to-slate-100 rounded-xl p-4 mb-4 space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="text-lg font-bold text-slate-900">Total:</span>
-                          <span className="text-2xl font-bold text-red-600">${getCartTotal().toLocaleString()}</span>
+                          <span className="text-sm text-slate-600">Subtotal:</span>
+                          <span className="font-bold text-slate-900">${getSubtotal().toLocaleString()}</span>
                         </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600">IVA (16%):</span>
+                          <span className="font-bold text-slate-900">${getIVA().toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-slate-600">Envío:</span>
+                          <span className="font-bold text-slate-900">
+                            {shippingCalculated ? (
+                              shippingCost === 0 ? (
+                                <span className="text-green-600">¡GRATIS!</span>
+                              ) : (
+                                `$${shippingCost.toLocaleString()}`
+                              )
+                            ) : (
+                              <span className="text-orange-600">Por calcular</span>
+                            )}
+                          </span>
+                        </div>
+                        <div className="border-t border-slate-300 pt-2">
+                          <div className="flex justify-between items-center">
+                            <span className="text-lg font-bold text-slate-900">Total:</span>
+                            <span className="text-2xl font-bold text-red-600">${getCartTotal().toLocaleString()}</span>
+                          </div>
+                        </div>
+                        {getSubtotal() >= 3000 && (
+                          <div className="bg-green-50 border border-green-200 rounded-lg p-2 mt-2">
+                            <p className="text-xs text-green-700 text-center font-medium">
+                              🎉 ¡Envío gratis por compra mayor a $3,000!
+                            </p>
+                          </div>
+                        )}
                       </div>
                       
+                      {!shippingCalculated && cart.length > 0 && (
+                        <div className="mb-4">
+                          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                            <p className="text-sm text-blue-700 mb-3 text-center">
+                              💡 Calcula tu envío para ver el total final
+                            </p>
+                            <div className="space-y-2">
+                              <input
+                                type="text"
+                                placeholder="Código Postal"
+                                className="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') {
+                                    const postalCode = e.target.value
+                                    const city = e.target.nextSibling.value || 'Ciudad'
+                                    if (postalCode) {
+                                      calculateShipping(postalCode, city)
+                                    }
+                                  }
+                                }}
+                              />
+                              <input
+                                type="text"
+                                placeholder="Ciudad"
+                                className="w-full px-3 py-2 border border-blue-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                onKeyPress={(e) => {
+                                  if (e.key === 'Enter') {
+                                    const city = e.target.value
+                                    const postalCode = e.target.previousSibling.value || '00000'
+                                    if (city) {
+                                      calculateShipping(postalCode, city)
+                                    }
+                                  }
+                                }}
+                              />
+                              <button
+                                onClick={() => {
+                                  const inputs = document.querySelectorAll('input[placeholder*="Código"], input[placeholder*="Ciudad"]')
+                                  const postalCode = inputs[0]?.value || '00000'
+                                  const city = inputs[1]?.value || 'Ciudad'
+                                  calculateShipping(postalCode, city)
+                                }}
+                                className="w-full bg-blue-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                              >
+                                📍 Calcular Envío
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
                       <button
                         onClick={handleCheckout}
                         className="w-full bg-gradient-to-r from-red-500 to-red-600 text-white py-4 rounded-xl font-bold text-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
