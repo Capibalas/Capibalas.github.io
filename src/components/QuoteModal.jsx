@@ -18,13 +18,51 @@ const QuoteModal = ({ isOpen, onClose, product }) => {
     }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     
-    const totalEstimate = product?.price ? product.price * quoteData.quantity : 'Por cotizar';
-    
-    // Create WhatsApp message with quote details
-    const quoteMessage = `🧾 *SOLICITUD DE COTIZACIÓN*
+    try {
+      const totalEstimate = product?.price ? product.price * quoteData.quantity : 0;
+      
+      // Guardar cotización en Firebase
+      const orderData = {
+        userId: `guest_${Date.now()}`,
+        userEmail: quoteData.email,
+        userName: quoteData.name,
+        userPhone: quoteData.phone,
+        userCompany: quoteData.company,
+        items: [{
+          productId: product?.id || 'custom',
+          title: product?.name || product?.title,
+          quantity: quoteData.quantity,
+          price: product?.price || 0,
+          subtotal: totalEstimate
+        }],
+        total: totalEstimate,
+        status: 'pending',
+        notes: quoteData.notes,
+        shippingAddress: 'Por confirmar',
+        paymentMethod: 'Por cotizar',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+
+      // Guardar en Firebase
+      const { ordersService } = await import('../firebase/services');
+      const orderId = await ordersService.addOrder(orderData);
+      
+      // Crear notificación para el admin
+      const { notificationsService } = await import('../firebase/services');
+      await notificationsService.addNotification({
+        userId: 'admin',
+        title: 'Nueva cotización solicitada',
+        message: `${quoteData.name} ha solicitado una cotización para ${product?.name || product?.title} (${quoteData.quantity} unidades)`,
+        type: 'new_order',
+        orderId: orderId
+      });
+
+      // También enviar por WhatsApp
+      const quoteMessage = `🧾 *SOLICITUD DE COTIZACIÓN*
 
 📦 *Producto:* ${product?.name || product?.title}
 📊 *Cantidad:* ${quoteData.quantity} unidades
@@ -52,22 +90,30 @@ Por favor, envíenme una cotización formal con:
 
 ¡Gracias por su atención!`
 
-    // Create WhatsApp link
-    const whatsappLink = `https://wa.me/525660547499?text=${encodeURIComponent(quoteMessage)}`
-    
-    // Open WhatsApp
-    window.open(whatsappLink, '_blank')
-    
-    // Close modal and reset form
-    onClose()
-    setQuoteData({
-      quantity: 1,
-      name: '',
-      email: '',
-      phone: '',
-      company: '',
-      notes: ''
-    })
+      // Create WhatsApp link
+      const whatsappLink = `https://wa.me/525660547499?text=${encodeURIComponent(quoteMessage)}`
+      
+      // Open WhatsApp
+      window.open(whatsappLink, '_blank')
+      
+      // Mostrar confirmación
+      alert('¡Cotización enviada exitosamente! También aparecerá en tu dashboard.');
+      
+      // Close modal and reset form
+      onClose()
+      setQuoteData({
+        quantity: 1,
+        name: '',
+        email: '',
+        phone: '',
+        company: '',
+        notes: ''
+      })
+      
+    } catch (error) {
+      console.error('Error al guardar cotización:', error);
+      alert('Error al enviar la cotización. Por favor, intenta de nuevo.');
+    }
   }
 
   if (!isOpen) return null
