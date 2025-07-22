@@ -133,16 +133,20 @@ const PublicProductCatalog = () => {
                   </div>
                 )}
                 
-                {/* Stock Badge */}
-                {product.stock <= 5 && product.stock > 0 && (
-                  <div className="absolute top-2 right-2 bg-orange-500 text-white px-2 py-1 rounded text-xs">
-                    ¡Últimas unidades!
-                  </div>
-                )}
-                {product.stock <= 0 && (
-                  <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
-                    Agotado
-                  </div>
+                {/* Stock Badge - Only for registered users */}
+                {user && (
+                  <>
+                    {product.stock <= 5 && product.stock > 0 && (
+                      <div className="absolute top-2 right-2 bg-orange-500 text-white px-2 py-1 rounded text-xs">
+                        ¡Últimas unidades!
+                      </div>
+                    )}
+                    {product.stock <= 0 && (
+                      <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs">
+                        Agotado
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
 
@@ -191,9 +195,12 @@ const PublicProductCatalog = () => {
                   </div>
                 ) : (
                   <div className="mt-4 pt-4 border-t">
-                    <button className="w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors">
-                      Ver Precios - Regístrate
-                    </button>
+                    <div className="bg-gray-50 p-3 rounded-lg text-center">
+                      <p className="text-sm text-gray-600 mb-2">Precio y stock disponibles solo para usuarios registrados</p>
+                      <button className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                        Registrarse para ver precios
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -316,7 +323,7 @@ const PublicProductCatalog = () => {
                     {!user && (
                       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                         <p className="text-blue-800 mb-3">
-                          Regístrate para ver precios y hacer pedidos
+                          Para ver precios y stock necesitas registrarte
                         </p>
                         <button
                           onClick={() => {
@@ -325,7 +332,7 @@ const PublicProductCatalog = () => {
                           }}
                           className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors"
                         >
-                          Registrarse ahora
+                          Iniciar sesión/registrarse
                         </button>
                       </div>
                     )}
