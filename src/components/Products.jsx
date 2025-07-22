@@ -174,13 +174,6 @@ const Products = () => {
                     ))}
                   </ul>
 
-                  {/* Price Display (if available) */}
-                  {product.price && (
-                    <div className="mb-6 p-4 bg-gradient-to-r from-emerald-50 to-blue-50 rounded-xl border border-emerald-200">
-                      <p className="text-sm text-slate-600 mb-1">Precio desde</p>
-                      <p className="text-2xl font-bold text-emerald-600">${product.price.toLocaleString()}</p>
-                    </div>
-                  )}
 
                   {/* CTA Buttons */}
                   <div className="space-y-3">
