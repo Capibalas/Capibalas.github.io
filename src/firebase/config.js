@@ -4,7 +4,7 @@ import { getAnalytics } from "firebase/analytics";
 import { getFirestore, enableNetwork, disableNetwork } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
-import { getFirebaseConfig } from "../utils/netlifyConfig";
+import { getFirebaseConfig } from "../utils/netlifyConfig.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = getFirebaseConfig();

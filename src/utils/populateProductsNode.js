@@ -1,4 +1,33 @@
-import { productsService } from '../firebase/services.js'
+#!/usr/bin/env node
+
+// Node.js-specific script to populate products
+// This script uses Firebase Admin SDK for server-side access
+
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, addDoc, getDocs } from 'firebase/firestore';
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Firebase configuration - using hardcoded values for Node.js environment
+const firebaseConfig = {
+  apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyCKh6ifKk0fXQlAy-ixQq-JRoAh4ppjUl0",
+  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "bestwhip-67e0b.firebaseapp.com",
+  projectId: process.env.VITE_FIREBASE_PROJECT_ID || "bestwhip-67e0b",
+  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "bestwhip-67e0b.firebasestorage.app",
+  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "886546495426",
+  appId: process.env.VITE_FIREBASE_APP_ID || "1:886546495426:web:f8f87f0938ec2dfec8085b",
+  measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID || "G-GEJR9MKLTL"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
 const sampleProducts = [
   {
@@ -28,7 +57,7 @@ const sampleProducts = [
     id: 'sifon-premium-1l',
     title: "Sifón Premium 1L",
     description: "Máxima capacidad para uso comercial con acabados de alta calidad",
-    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop&crop=center",
+    image: "https://images.unsplash.com/photo-1556909114-f6f7ad7d3136?w=400&h=400&fit=crop&crop=center",
     imagePath: "temp/sifon-premium-1l.jpg",
     category: "sifones",
     price: 1200,
@@ -179,20 +208,32 @@ const sampleProducts = [
       "Responsabilidad social"
     ]
   }
-]
+];
 
-export const seedProducts = async () => {
+const seedProducts = async () => {
   try {
-    console.log('Iniciando población de productos...')
+    console.log('🚀 Iniciando población de productos...')
+    
+    // Check if products collection exists
+    const existingSnapshot = await getDocs(collection(db, 'products'));
+    const existingProducts = existingSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    
+    console.log(`📊 Productos existentes: ${existingProducts.length}`)
     
     for (const product of sampleProducts) {
       try {
-        // Verificar si el producto ya existe
-        const existingProducts = await productsService.getProducts()
-        const exists = existingProducts.some(p => p.id === product.id)
+        // Check if product already exists by ID
+        const exists = existingProducts.some(p => p.id === product.id);
         
         if (!exists) {
-          await productsService.addProduct(product)
+          await addDoc(collection(db, 'products'), {
+            ...product,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          });
           console.log(`✅ Producto creado: ${product.title}`)
         } else {
           console.log(`⚠️ Producto ya existe: ${product.title}`)
@@ -208,6 +249,19 @@ export const seedProducts = async () => {
     console.error('❌ Error en población de productos:', error)
     return false
   }
+};
+
+// Execute if called directly
+if (import.meta.url === `file://${process.argv[1]}`) {
+  seedProducts()
+    .then(() => {
+      console.log('Script completed successfully');
+      process.exit(0);
+    })
+    .catch((error) => {
+      console.error('Script failed:', error);
+      process.exit(1);
+    });
 }
 
-export default seedProducts
+export default seedProducts;

@@ -1,10 +1,27 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read and write access to all documents for now
-    // In production, you should implement proper authentication and authorization
+    // Allow read/write access to all documents
     match /{document=**} {
       allow read, write: if true;
+    }
+    
+    // Specific rules for products collection
+    match /products/{product} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Specific rules for orders collection
+    match /orders/{order} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Specific rules for users collection
+    match /users/{user} {
+      allow read: if true;
+      allow write: if true;
     }
   }
 }

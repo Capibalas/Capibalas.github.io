@@ -1,4 +1,7 @@
-import { productsService } from '../firebase/services.js'
+// Browser-compatible script to populate products
+// This script uses the existing Firebase services
+
+import { productsService } from '../firebase/services.js';
 
 const sampleProducts = [
   {
@@ -28,7 +31,7 @@ const sampleProducts = [
     id: 'sifon-premium-1l',
     title: "Sifón Premium 1L",
     description: "Máxima capacidad para uso comercial con acabados de alta calidad",
-    image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop&crop=center",
+    image: "https://images.unsplash.com/photo-1556909114-f6f7ad7d3136?w=400&h=400&fit=crop&crop=center",
     imagePath: "temp/sifon-premium-1l.jpg",
     category: "sifones",
     price: 1200,
@@ -179,35 +182,51 @@ const sampleProducts = [
       "Responsabilidad social"
     ]
   }
-]
+];
 
-export const seedProducts = async () => {
+const populateProducts = async () => {
   try {
-    console.log('Iniciando población de productos...')
+    console.log('🚀 Iniciando población de productos...');
+    
+    // Get existing products
+    const existingProducts = await productsService.getAllProducts();
+    console.log(`📊 Productos existentes: ${existingProducts.length}`);
+    
+    let createdCount = 0;
+    let skippedCount = 0;
     
     for (const product of sampleProducts) {
       try {
-        // Verificar si el producto ya existe
-        const existingProducts = await productsService.getProducts()
-        const exists = existingProducts.some(p => p.id === product.id)
+        // Check if product already exists by ID
+        const exists = existingProducts.some(p => p.id === product.id);
         
         if (!exists) {
-          await productsService.addProduct(product)
-          console.log(`✅ Producto creado: ${product.title}`)
+          await productsService.createProduct(product);
+          console.log(`✅ Producto creado: ${product.title}`);
+          createdCount++;
         } else {
-          console.log(`⚠️ Producto ya existe: ${product.title}`)
+          console.log(`⚠️ Producto ya existe: ${product.title}`);
+          skippedCount++;
         }
       } catch (error) {
-        console.error(`❌ Error creando producto ${product.title}:`, error)
+        console.error(`❌ Error creando producto ${product.title}:`, error);
       }
     }
     
-    console.log('✅ Población de productos completada')
-    return true
+    console.log(`✅ Población de productos completada`);
+    console.log(`📊 Resumen: ${createdCount} creados, ${skippedCount} omitidos`);
+    
+    return { success: true, created: createdCount, skipped: skippedCount };
   } catch (error) {
-    console.error('❌ Error en población de productos:', error)
-    return false
+    console.error('❌ Error en población de productos:', error);
+    return { success: false, error: error.message };
   }
-}
+};
 
-export default seedProducts
+// Export for use in components
+export default populateProducts;
+
+// Also make it available globally for debugging
+if (typeof window !== 'undefined') {
+  window.populateProducts = populateProducts;
+}

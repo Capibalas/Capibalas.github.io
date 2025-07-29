@@ -6,16 +6,32 @@ export const isNetlifyProduction = () => {
 };
 
 export const getFirebaseConfig = () => {
-  // Use environment variables in production, fallback to defaults
-  return {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCKh6ifKk0fXQlAy-ixQq-JRoAh4ppjUl0",
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "bestwhip-67e0b.firebaseapp.com",
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "bestwhip-67e0b",
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "bestwhip-67e0b.firebasestorage.app",
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "886546495426",
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:886546495426:web:f8f87f0938ec2dfec8085b",
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-GEJR9MKLTL"
-  };
+  // Handle both Node.js and browser environments
+  const isNode = typeof process !== 'undefined' && process.env;
+  
+  if (isNode) {
+    // Node.js environment - use process.env
+    return {
+      apiKey: process.env.VITE_FIREBASE_API_KEY || "AIzaSyCKh6ifKk0fXQlAy-ixQq-JRoAh4ppjUl0",
+      authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN || "bestwhip-67e0b.firebaseapp.com",
+      projectId: process.env.VITE_FIREBASE_PROJECT_ID || "bestwhip-67e0b",
+      storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET || "bestwhip-67e0b.firebasestorage.app",
+      messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "886546495426",
+      appId: process.env.VITE_FIREBASE_APP_ID || "1:886546495426:web:f8f87f0938ec2dfec8085b",
+      measurementId: process.env.VITE_FIREBASE_MEASUREMENT_ID || "G-GEJR9MKLTL"
+    };
+  } else {
+    // Browser environment - use import.meta.env (Vite)
+    return {
+      apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyCKh6ifKk0fXQlAy-ixQq-JRoAh4ppjUl0",
+      authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "bestwhip-67e0b.firebaseapp.com",
+      projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "bestwhip-67e0b",
+      storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "bestwhip-67e0b.firebasestorage.app",
+      messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "886546495426",
+      appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:886546495426:web:f8f87f0938ec2dfec8085b",
+      measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-GEJR9MKLTL"
+    };
+  }
 };
 
 // Handle Firebase initialization errors gracefully
