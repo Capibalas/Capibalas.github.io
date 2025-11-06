@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
 import { productsService, ordersService } from '../firebase/services'
+import { sendOrderConfirmationEmail } from '../services/emailService'
 
 const MakeOrder = () => {
   const { user } = useAuth()
@@ -206,6 +207,15 @@ const MakeOrder = () => {
       }
 
       await ordersService.addOrder(orderToCreate)
+      
+      // Enviar email de confirmación
+      try {
+        await sendOrderConfirmationEmail(orderToCreate)
+        console.log('Email de confirmación enviado exitosamente')
+      } catch (emailError) {
+        console.warn('No se pudo enviar el email de confirmación:', emailError)
+        // Continuar aunque falle el email
+      }
       
       setOrderStep('confirmation')
       setCart([])

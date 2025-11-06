@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { sendContactEmail } from '../services/emailService'
 
 const ContactForm = () => {
   const [isVisible, setIsVisible] = useState(false)
@@ -43,8 +44,18 @@ const ContactForm = () => {
     e.preventDefault()
     setIsSubmitting(true)
     
-    // Create WhatsApp message
-    const whatsappMessage = `Hola, me interesa obtener información sobre sus productos.
+    try {
+      // Enviar email mediante EmailJS
+      try {
+        await sendContactEmail(formData)
+        console.log('Email enviado exitosamente')
+      } catch (emailError) {
+        console.warn('No se pudo enviar el email:', emailError)
+        // Continuar con WhatsApp aunque falle el email
+      }
+      
+      // Create WhatsApp message
+      const whatsappMessage = `Hola, me interesa obtener información sobre sus productos.
 
 *Datos de contacto:*
 • Nombre: ${formData.name}
@@ -57,31 +68,39 @@ const ContactForm = () => {
 ${formData.message || 'Sin mensaje adicional'}
 
 Gracias por su atención.`
-    
-    // Create WhatsApp link
-    const whatsappLink = `https://wa.me/525660547499?text=${encodeURIComponent(whatsappMessage)}`
-    
-    // Open WhatsApp
-    window.open(whatsappLink, '_blank')
-    
-    // Simulate processing time
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    setIsSubmitting(false)
-    setSubmitted(true)
-    
-    // Reset form after 5 seconds
-    setTimeout(() => {
-      setSubmitted(false)
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        business: '',
-        interest: '',
-        message: ''
-      })
-    }, 5000)
+      
+      // Create WhatsApp link
+      const whatsappLink = `https://wa.me/525660547499?text=${encodeURIComponent(whatsappMessage)}`
+      
+      // Open WhatsApp
+      window.open(whatsappLink, '_blank')
+      
+      // Simulate processing time
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      setIsSubmitting(false)
+      setSubmitted(true)
+      
+      // Reset form after 5 seconds
+      setTimeout(() => {
+        setSubmitted(false)
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          business: '',
+          interest: '',
+          message: ''
+        })
+      }, 5000)
+    } catch (error) {
+      console.error('Error en el envío del formulario:', error)
+      setIsSubmitting(false)
+      // Aún así abrir WhatsApp como fallback
+      const whatsappMessage = `Hola, me interesa obtener información sobre sus productos. Nombre: ${formData.name}, Email: ${formData.email}`
+      const whatsappLink = `https://wa.me/525660547499?text=${encodeURIComponent(whatsappMessage)}`
+      window.open(whatsappLink, '_blank')
+    }
   }
 
   const interestOptions = [

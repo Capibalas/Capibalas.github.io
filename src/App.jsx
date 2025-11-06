@@ -7,6 +7,8 @@ import Footer from './components/Footer'
 import Dashboard from './components/Dashboard'
 import OnboardingDashboard from './components/OnboardingDashboard'
 import AdminPanel from './components/AdminPanel'
+import AdminProductSeeder from './components/AdminProductSeeder'
+import FirebaseDiagnostic from './components/FirebaseDiagnostic'
 import ProductCatalog from './pages/ProductCatalog'
 import ProductDetail from './pages/ProductDetail'
 import Login from './components/Login'
@@ -71,12 +73,20 @@ const Navigation = () => {
               )}
               {isSuperAdmin && (
                 <>
+                  <Link to="/diagnostic" className="relative text-blue-600 hover:text-blue-700 transition-all duration-300 font-medium group">
+                    🔍 Diagnóstico
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-blue-500 group-hover:w-full transition-all duration-300"></span>
+                  </Link>
+                  <Link to="/seed-products" className="relative text-emerald-600 hover:text-emerald-700 transition-all duration-300 font-medium group">
+                    🌱 Productos
+                    <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-emerald-500 group-hover:w-full transition-all duration-300"></span>
+                  </Link>
                   <Link to="/dashboard" className="relative text-slate-700 hover:text-red-600 transition-all duration-300 font-medium group">
-                    Dashboard Admin
+                    Dashboard
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
                   </Link>
                   <Link to="/admin" className="relative text-slate-700 hover:text-red-600 transition-all duration-300 font-medium group">
-                    Admin Panel
+                    Admin
                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-red-500 group-hover:w-full transition-all duration-300"></span>
                   </Link>
                 </>
@@ -167,6 +177,18 @@ function App() {
               <ProtectedRoute requireAdmin={true}>
                 <Navigation />
                 <AdminPanel />
+              </ProtectedRoute>
+            } />
+            <Route path="/seed-products" element={
+              <ProtectedRoute requireAdmin={true}>
+                <Navigation />
+                <AdminProductSeeder />
+              </ProtectedRoute>
+            } />
+            <Route path="/diagnostic" element={
+              <ProtectedRoute requireAdmin={true}>
+                <Navigation />
+                <FirebaseDiagnostic />
               </ProtectedRoute>
             } />
             </Routes>
